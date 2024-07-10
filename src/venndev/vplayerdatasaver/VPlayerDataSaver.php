@@ -101,13 +101,13 @@ class VPlayerDataSaver extends PluginBase implements Listener
     /**
      * @throws Throwable
      */
-    public static function checkExists(string $xuid): Promise
+    public static function checkExists(string $xuid, callable $callable): Promise
     {
         if (self::$database instanceof MySQL || self::$database instanceof SQLite) {
-            return new Promise(function ($resolve) use ($xuid):void {
+            return new Promise(function ($resolve) use ($xuid, $callable):void {
                 $queryString = "SELECT * FROM " . self::$tableName . " WHERE xuid = '$xuid';";
-                $resolve(self::$queryHandler->processQuery($queryString, function() use ($xuid, $queryString):void {
-                    self::$database->execute($queryString);
+                $resolve(self::$queryHandler->processQuery($queryString, function() use ($xuid, $queryString, $callable): Promise {
+                    return self::$database->execute($queryString)->then($callable);
                 }));
             });
         } else {
@@ -133,13 +133,13 @@ class VPlayerDataSaver extends PluginBase implements Listener
     /**
      * @throws Throwable
      */
-    public static function addXUID(string $xuid, string $name): Promise
+    public static function addXUID(string $xuid, string $name, callable $callable): Promise
     {
         if (self::$database instanceof MySQL || self::$database instanceof SQLite) {
-            return new Promise(function ($resolve) use ($xuid, $name):void {
+            return new Promise(function ($resolve) use ($xuid, $name, $callable):void {
                 $queryString = "INSERT INTO " . self::$tableName . " (xuid, name) VALUES ('$xuid', '$name');";
-                $resolve(self::$queryHandler->processQuery($queryString, function() use ($queryString):void {
-                    self::$database->execute($queryString);
+                $resolve(self::$queryHandler->processQuery($queryString, function() use ($queryString, $callable): Promise {
+                    return self::$database->execute($queryString)->then($callable);
                 }));
             });
         } else {
@@ -162,13 +162,13 @@ class VPlayerDataSaver extends PluginBase implements Listener
     /**
      * @throws Throwable
      */
-    public static function updateName(string $xuid, string $name): Promise
+    public static function updateName(string $xuid, string $name, callable $callable): Promise
     {
         if (self::$database instanceof MySQL || self::$database instanceof SQLite) {
-            return new Promise(function ($resolve) use ($xuid, $name):void {
+            return new Promise(function ($resolve) use ($xuid, $name, $callable):void {
                 $queryString = "UPDATE " . self::$tableName . " SET name = '$name' WHERE xuid = '$xuid';";
-                $resolve(self::$queryHandler->processQuery($queryString, function() use ($queryString):void {
-                    self::$database->execute($queryString);
+                $resolve(self::$queryHandler->processQuery($queryString, function() use ($queryString, $callable): Promise {
+                    return self::$database->execute($queryString)->then($callable);
                 }));
             });
         } else {
@@ -197,7 +197,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
     /**
      * @throws Throwable
      */
-    public static function updateColumn(string $xuid, string $column, int|float|string $value): Promise
+    public static function updateColumn(string $xuid, string $column, int|float|string $value, callable $callable): Promise
     {
         if (self::$database instanceof MySQL || self::$database instanceof SQLite) {
             if (is_string($value)) {
@@ -206,9 +206,9 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 $queryString = "UPDATE " . self::$tableName . " SET $column = $value WHERE xuid = '$xuid';";
             }
 
-            return new Promise(function ($resolve) use ($xuid, $column, $value, $queryString):void {
-                $resolve(self::$queryHandler->processQuery($queryString, function() use ($queryString):void {
-                    self::$database->execute($queryString);
+            return new Promise(function ($resolve) use ($xuid, $column, $value, $queryString, $callable):void {
+                $resolve(self::$queryHandler->processQuery($queryString, function() use ($queryString, $callable): Promise {
+                    return self::$database->execute($queryString)->then($callable);
                 }));
             });
         } else {
@@ -243,11 +243,12 @@ class VPlayerDataSaver extends PluginBase implements Listener
         $xuid = $player->getXuid();
 
         try {
-            self::checkExists($xuid)->then(function ($result) use ($player, $xuid):void {
+            self::checkExists($xuid, function ($result) use ($player, $xuid):void {
+                $callable = function () {};
                 if ($result instanceof ResultQuery) {
-                    empty($result->getResult()) ? self::addXUID($xuid, $player->getName()) : $this->updateName($xuid, $player->getName());
+                    empty($result->getResult()) ? self::addXUID($xuid, $player->getName(), $callable) : $this->updateName($xuid, $player->getName(), $callable);
                 } else {
-                    $result === null ? self::addXUID($xuid, $player->getName()) : $this->updateName($xuid, $player->getName());
+                    $result === null ? self::addXUID($xuid, $player->getName(), $callable) : $this->updateName($xuid, $player->getName(), $callable);
                 }
             });
         } catch (Throwable $e) {
