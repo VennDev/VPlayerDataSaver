@@ -206,7 +206,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 $queryString = "UPDATE " . self::$tableName . " SET $column = $value WHERE xuid = '$xuid';";
             }
 
-            return new Promise(function ($resolve) use ($value, $queryString, $callable):void {
+            return new Promise(function ($resolve) use ($queryString, $callable):void {
                 $resolve(self::$queryHandler->processQuery($queryString, function() use ($queryString, $callable): Promise {
                     return self::$database->execute($queryString)->then($callable);
                 }));
