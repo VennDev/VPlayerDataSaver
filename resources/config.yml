@@ -2,8 +2,8 @@
 database:
   host: localhost
   port: 3306
-  database: vmskyblock
-  table-name: vmskyblock
+  database: vplayerdatasaver
+  table-name: vplayerdatasaver
   username: root
   password: ''
   type: yaml # mysql or sqlite or yaml
