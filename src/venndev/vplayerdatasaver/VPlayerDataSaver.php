@@ -234,6 +234,35 @@ class VPlayerDataSaver extends PluginBase implements Listener
         }
     }
 
+    public static function getDataByXuid(string $xuid): Promise
+    {
+        if (self::$database instanceof MySQL || self::$database instanceof SQLite) {
+            return new Promise(function ($resolve) use ($xuid):void {
+                $queryString = "SELECT * FROM " . self::$tableName . " WHERE xuid = '$xuid';";
+                $resolve(self::$queryHandler->processQuery($queryString, function() use ($queryString): Promise {
+                    return self::$database->execute($queryString);
+                }));
+            });
+        } else {
+            return new Promise(function ($resolve, $reject) use ($xuid):void {
+                try {
+                    $data = self::$database->getAll();
+                    foreach ($data as $key => $value) {
+                        if ($value["xuid"] === $xuid) {
+                            $resolve($value);
+                        }
+
+                        FiberManager::wait();
+                    }
+
+                    $resolve(null);
+                } catch (Throwable $e) {
+                    $reject($e);
+                }
+            });
+        }
+    }
+
     /**
      * @throws Throwable
      */
