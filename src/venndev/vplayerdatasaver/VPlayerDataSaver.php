@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace venndev\vplayerdatasaver;
 
+use pocketmine\utils\SingletonTrait;
 use Throwable;
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;
@@ -19,6 +20,7 @@ use vennv\vapm\VapmPMMP;
 
 class VPlayerDataSaver extends PluginBase implements Listener
 {
+    use SingletonTrait;
 
     private static QueryHandler $queryHandler;
 
@@ -36,6 +38,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
      */
     protected function onLoad(): void
     {
+        self::setInstance($this);
         $this->saveDefaultConfig();
 
         $type = $this->getDatabaseData()["type"];
@@ -234,6 +237,9 @@ class VPlayerDataSaver extends PluginBase implements Listener
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public static function getDataByXuid(string $xuid): Promise
     {
         if (self::$database instanceof MySQL || self::$database instanceof SQLite) {
