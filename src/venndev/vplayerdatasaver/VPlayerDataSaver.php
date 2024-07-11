@@ -114,7 +114,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 }));
             });
         } else {
-            return new Promise(function ($resolve, $reject) use ($xuid):void {
+            return (new Promise(function ($resolve, $reject) use ($xuid):void {
                 try {
                     $data = self::$database->getAll();
                     foreach ($data as $key => $value) {
@@ -129,7 +129,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 } catch (Throwable $e) {
                     $reject($e);
                 }
-            });
+            }))->then($callable);
         }
     }
 
@@ -146,7 +146,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 }));
             });
         } else {
-            return new Promise(function ($resolve, $reject) use ($xuid, $name):void {
+            return (new Promise(function ($resolve, $reject) use ($xuid, $name):void {
                 try {
                     $data = self::$database->getAll();
                     $dataPlayer = ["xuid" => $xuid, "name" => $name];
@@ -158,7 +158,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 } catch (Throwable $e) {
                     $reject($e);
                 }
-            });
+            }))->then($callable);
         }
     }
 
@@ -175,7 +175,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 }));
             });
         } else {
-            return new Promise(function ($resolve, $reject) use ($xuid, $name):void {
+            return (new Promise(function ($resolve, $reject) use ($xuid, $name):void {
                 try {
                     $data = self::$database->getAll();
                     foreach ($data as $key => $value) {
@@ -193,7 +193,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 } catch (Throwable $e) {
                     $reject($e);
                 }
-            });
+            }))->then($callable);
         }
     }
 
@@ -215,7 +215,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 }));
             });
         } else {
-            return new Promise(function ($resolve, $reject) use ($xuid, $column, $value):void {
+            return (new Promise(function ($resolve, $reject) use ($xuid, $column, $value):void {
                 try {
                     $data = self::$database->getAll();
                     foreach ($data as $key => $dataPlayer) {
@@ -233,7 +233,7 @@ class VPlayerDataSaver extends PluginBase implements Listener
                 } catch (Throwable $e) {
                     $reject($e);
                 }
-            });
+            }))->then($callable);
         }
     }
 
