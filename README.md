@@ -31,3 +31,7 @@ database:
   addition-yaml-data: []
 ...
 ```
+
+# Credits
+- API Designer: [VennDev](https://github.com/VennDev)
+- Paypal: pnam5005@gmail.com
